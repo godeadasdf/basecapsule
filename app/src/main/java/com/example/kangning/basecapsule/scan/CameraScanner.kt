@@ -17,6 +17,11 @@ import com.ofo.scan.views.ScanViewAdapter
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.camera_scanner_view.view.*
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
+
 
 /**
  * Created by kangning on 2018/5/28.
@@ -24,20 +29,23 @@ import kotlinx.android.synthetic.main.camera_scanner_view.view.*
  * 相机扫码常用封装
  *
  * 考虑情况
- * 1.扫描司机. 扫描车辆
- * 2.前缀规则
  * 3.LifecycleObserver
  * 4.RxStream封装数据结果
  * 5.LifeCycleObserver监听LifeCycleOwner（activity or fragment）事件
+ * 对应activity配置如下属性
+ * android:windowSoftInputMode="adjustPan|stateHidden"
  */
 
 //todo 找到黄框的具体位置 马勒基。。。
 class CameraScanner : FrameLayout, BaseScanner, IScanCallback, LifecycleObserver {
 
-    private var baseView: View
-    private lateinit var scannerView: BaseScanView
     var attachedActivity: Activity? = null
     private lateinit var lifecycle: Lifecycle
+    lateinit var bottomInputView: BottomInputView
+
+
+    private var baseView: View
+    private lateinit var scannerView: BaseScanView
 
     private var isFlashOn = false
     private var isInputting = false
@@ -92,15 +100,20 @@ class CameraScanner : FrameLayout, BaseScanner, IScanCallback, LifecycleObserver
                     true -> {
                         isInputting = false
                         input_text.setImageResource(R.drawable.keyboard_show)
+                        bottomInputView.showInput()
                     }
                     false -> {
                         isInputting = true
                         input_text.setImageResource(R.drawable.keyboard_hide)
+                        bottomInputView.hideInput()
                     }
                 }
             }
         }
+
     }
+
+
 
     val attachLifecycle: (Lifecycle) -> Unit = {
         lifecycle = it
